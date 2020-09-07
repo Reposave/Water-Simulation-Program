@@ -1,15 +1,16 @@
 import javax.swing.*;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
+import java.awt.Color;
 
 public class Flow {
 	static long startTime = 0;
 	static int frameX;
 	static int frameY;
 	static FlowPanel fp;
+	static WaterFlowPanel wfp;
 
 	// start timer
 	private static void tick(){
@@ -30,10 +31,26 @@ public class Flow {
     	
       	JPanel g = new JPanel();
         g.setLayout(new BoxLayout(g, BoxLayout.PAGE_AXIS)); 
-   
+
+   		JLayeredPane lp = frame.getLayeredPane();
+		lp.setPreferredSize(new Dimension(frameX,frameY));
+
 		fp = new FlowPanel(landdata);
 		fp.setPreferredSize(new Dimension(frameX,frameY));
+
+		wfp = new WaterFlowPanel(landdata);
+		wfp.setPreferredSize(new Dimension(frameX,frameY));
+		wfp.setBackground(new Color(250, 134, 145, 123));
+		//wfp.setOpaque(false);
+		
 		g.add(fp);
+
+		g.setBounds(0, 0, frameX, frameY);
+		wfp.setBounds(0, 0, frameX, frameY);
+
+		lp.add(wfp, Integer.valueOf(1)); //layer 1
+		lp.add(g, Integer.valueOf(2)); //layer 2
+    	
 	    
 		// to do: add a MouseListener, buttons and ActionListeners on those buttons
 	   	
@@ -53,11 +70,20 @@ public class Flow {
     	
 		frame.setSize(frameX, frameY+50);	// a little extra space at the bottom for buttons
       	frame.setLocationRelativeTo(null);  // center window on screen
-      	frame.add(g); //add contents to window
-        frame.setContentPane(g);
+      	//frame.add(g); //add contents to window
+		//frame.add(wfp);
+		//frame.add(lp);
+        //frame.setContentPane(g);
+		//frame.setContentPane(lp);
+
         frame.setVisible(true);
+
         Thread fpt = new Thread(fp);
         fpt.start();
+		
+		Thread wfpt = new Thread(wfp);
+        wfpt.start();
+	
 	}
 	
 		

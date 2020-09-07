@@ -13,7 +13,8 @@ DOCDIR=../doc
 $(BINDIR)/%.class:$(SRCDIR)/%.java
 	$(JAVAC) -d $(BINDIR)/ -cp $(BINDIR) $<
 
-CLASSES=Terrain.class\
+CLASSES=WaterFlowPanel.class\
+		Terrain.class\
 		FlowPanel.class\
 		Flow.class\
 		
