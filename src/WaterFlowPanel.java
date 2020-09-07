@@ -2,10 +2,10 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 public class WaterFlowPanel extends JPanel implements Runnable {
-	Terrain land;
+	WaterDraw land;
 	
-	WaterFlowPanel(Terrain terrain) {
-		land=terrain;
+	WaterFlowPanel(WaterDraw water) {
+		land=water;
 	}
 		
 	// responsible for painting the terrain and water
@@ -27,6 +27,6 @@ public class WaterFlowPanel extends JPanel implements Runnable {
 		// display loop here
 		// to do: this should be controlled by the GUI
 		// to allow stopping and starting
-	    //repaint();
+	    repaint();
 	}
 }

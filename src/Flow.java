@@ -22,7 +22,7 @@ public class Flow {
 		return (System.currentTimeMillis() - startTime) / 1000.0f; 
 	}
 	
-	public static void setupGUI(int frameX,int frameY,Terrain landdata) {
+	public static void setupGUI(int frameX,int frameY,Terrain landdata,WaterDraw water) {
 		
 		Dimension fsize = new Dimension(800, 800);
     	JFrame frame = new JFrame("Waterflow"); 
@@ -38,7 +38,7 @@ public class Flow {
 		fp = new FlowPanel(landdata);
 		fp.setPreferredSize(new Dimension(frameX,frameY));
 
-		wfp = new WaterFlowPanel(landdata);
+		wfp = new WaterFlowPanel(water);
 		wfp.setPreferredSize(new Dimension(frameX,frameY));
 		wfp.setBackground(new Color(250, 134, 145, 123));
 		//wfp.setOpaque(false);
@@ -46,10 +46,10 @@ public class Flow {
 		g.add(fp);
 
 		g.setBounds(0, 0, frameX, frameY);
-		wfp.setBounds(0, 0, frameX, frameY);
+		wfp.setBounds(frameY/2, 0, frameX, frameY);
 
-		lp.add(wfp, Integer.valueOf(1)); //layer 1
-		lp.add(g, Integer.valueOf(2)); //layer 2
+		lp.add(wfp, Integer.valueOf(2)); //layer 1
+		lp.add(g, Integer.valueOf(1)); //layer 2
     	
 	    
 		// to do: add a MouseListener, buttons and ActionListeners on those buttons
@@ -89,6 +89,8 @@ public class Flow {
 		
 	public static void main(String[] args) {
 		Terrain landdata = new Terrain();
+
+		WaterDraw water = new WaterDraw();
 		
 		// check that number of command line arguments is correct
 		if(args.length != 1)
@@ -100,10 +102,12 @@ public class Flow {
 		// landscape information from file supplied as argument
 		// 
 		landdata.readData(args[0]);
+
+		water.readData(args[0]);
 		
 		frameX = landdata.getDimX();
 		frameY = landdata.getDimY();
-		SwingUtilities.invokeLater(()->setupGUI(frameX, frameY, landdata));
+		SwingUtilities.invokeLater(()->setupGUI(frameX, frameY, landdata, water));
 		
 		// to do: initialise and start simulation
 	}
