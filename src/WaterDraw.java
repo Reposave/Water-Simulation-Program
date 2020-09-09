@@ -45,6 +45,32 @@ public class WaterDraw {
 			}
 		}
 	}
+	public void paintPixels(int x, int y){
+		//print a 10*10 square.
+		int XUBound =x+5;
+		int YUBound =y+5;
+		int XLBound = x-5;
+		int YLBound = y-5;
+
+		if(x+5>dimx){
+			XUBound = dimx;
+		}else if(x-5<0){
+			XLBound	= 0;		
+			}
+		if(y-5<0){
+			YLBound = 0;
+			}
+		else if(y+5>dimy){
+			YUBound = dimy;
+			}
+		
+		for(int i=XLBound; i < XUBound; i++){
+			for(int j=YLBound; j < YUBound; j++) {
+				 Color col = new Color(0, 0, 255, 255);
+				 img.setRGB(i, j, col.getRGB());
+			}
+		}
+	}	
 	
 	// read in terrain from file
 	void readData(String fileName){ 

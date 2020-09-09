@@ -1,6 +1,7 @@
 import java.awt.Graphics;
 import javax.swing.JPanel;
 
+//This class draws the water flow onto the display.
 public class WaterFlowPanel extends JPanel implements Runnable {
 	WaterDraw land;
 	
@@ -17,7 +18,7 @@ public class WaterFlowPanel extends JPanel implements Runnable {
 		  
 		super.paintComponent(g);
 		
-		// draw the landscape in greyscale as an image
+		// draw the water images.
 		if (land.getImage() != null){
 			g.drawImage(land.getImage(), 0, 0, null);
 		}
