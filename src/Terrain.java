@@ -13,6 +13,7 @@ public class Terrain {
 	float [][] height; // regular grid of height values
 	int dimx, dimy; // data dimensions
 	BufferedImage img; // greyscale image for displaying the terrain top-down
+	WaterGrid watergrid;
 
 	ArrayList<Integer> permute;	// permuted list of integers in range [0, dimx*dimy)
 	
@@ -105,6 +106,8 @@ public class Terrain {
 			
 			// populate height grid
 			height = new float[dimy][dimx];
+			watergrid =  new WaterGrid(dimy,dimx);
+
 			String s="";
 
 			for(int y = 0; y < dimy; y++){
