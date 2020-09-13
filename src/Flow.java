@@ -77,6 +77,7 @@ public class Flow {
 		//g.add(b);
 		
 		wfp = new WaterFlowPanel(water);
+		water.insertWFP(wfp);
 		//wfp.setPreferredSize(new Dimension(frameX,frameY));
 		wfp.setPreferredSize(fp.getSize());
 

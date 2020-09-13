@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 public class WaterDraw {
 	int dimx, dimy; // data dimensions
 	BufferedImage img; // greyscale image for displaying the terrain top-down
+	public WaterFlowPanel wfp;
 
 	// overall number of elements in the height grid
 	int dim(){
@@ -20,6 +21,9 @@ public class WaterDraw {
 	// get x-dimensions (number of columns)
 	int getDimX(){
 		return dimx;
+	}
+	void insertWFP(WaterFlowPanel Wfp){
+		wfp = Wfp;
 	}
 	
 	// get y-dimensions (number of rows)
@@ -36,14 +40,16 @@ public class WaterDraw {
 	void deriveImage()
 	{
 		img = new BufferedImage(dimy, dimx, BufferedImage.TYPE_INT_ARGB);
-
-		for(int x=0; x < dimx; x++){
+		WaterThread(dimx, dimy, 0, 0, img);
+		/*for(int x=0; x < dimx; x++){
 			for(int y=0; y < dimy; y++) {
 				 // find normalized height value in range
 				 Color col = new Color(123, 0, 0, 50);
 				 img.setRGB(x, y, col.getRGB());
 			}
-		}
+		}*/
+
+		//Start Thread here.
 	}
 	public void paintPixels(int x, int y){
 		//print a 10*10 square.
@@ -63,13 +69,16 @@ public class WaterDraw {
 		else if(y+5>dimy){
 			YUBound = dimy;
 			}
-		
-		for(int i=XLBound; i < XUBound; i++){
-			for(int j=YLBound; j < YUBound; j++) {
-				 WaterGrid.WaterUnitArray[i][j].Activate();
-				 Color col = new Color(0, 175-25, 255, 255);
-				 img.setRGB(i, j, col.getRGB());
+		synchronized (WaterGrid.class){ //If adding Water Units to the array, do not allow anyone else to access it.
+
+			for(int i=XLBound; i < XUBound; i++){
+				for(int j=YLBound; j < YUBound; j++) {
+					 WaterGrid.WaterUnitArray[i][j].Activate();
+					 //Color col = new Color(0, 175-25, 255, 255);
+					 //img.setRGB(i, j, col.getRGB());
+				}
 			}
+
 		}
 	}	
 	

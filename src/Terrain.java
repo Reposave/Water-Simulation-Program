@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 
 public class Terrain {
 
-	float [][] height; // regular grid of height values
+	public static float [][] height; // regular grid of height values
 	int dimx, dimy; // data dimensions
 	BufferedImage img; // greyscale image for displaying the terrain top-down
 	WaterGrid watergrid;

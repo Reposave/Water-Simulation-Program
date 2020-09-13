@@ -5,7 +5,12 @@ public class WaterUnit{
 	private boolean Active = false;
 	private Color col = null;
 	private int colormultiplier = 25;
-
+	private int row = 0;
+	private int column = 0;
+	
+	public WaterUnit(int row, int column){
+		
+	}
 	public synchronized void Activate(){
 		if(!Active){
 			Active =  true;
