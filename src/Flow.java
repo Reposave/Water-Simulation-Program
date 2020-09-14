@@ -10,6 +10,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import java.util.concurrent.ForkJoinPool;
+
 public class Flow {
 	static long startTime = 0;
 	static int frameX;
@@ -18,6 +20,8 @@ public class Flow {
 	static WaterFlowPanel wfp;
 
 	static WaterDraw water;
+	
+	static final ForkJoinPool fjPool = new ForkJoinPool();
 
 	// start timer
 	private static void tick(){
@@ -108,7 +112,7 @@ public class Flow {
     			int y=e.getY();
     			System.out.println(x+","+y);//these co-ords are relative to the component
 				water.paintPixels(x,y);
-				wfp.repaint();
+				//wfp.repaint();
    			 }
 			
 			/*public void mouseExited(MouseEvent e)
@@ -131,7 +135,8 @@ public class Flow {
 		
 		Thread wfpt = new Thread(wfp);
         wfpt.start();
-	
+		
+		SwingUtilities.invokeLater(()->fjPool.invoke(new WaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp)));
 	}
 	
 		

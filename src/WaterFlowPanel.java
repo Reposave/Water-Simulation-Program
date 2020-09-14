@@ -1,12 +1,18 @@
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.*;
 import javax.swing.JPanel;
 
 //This class draws the water flow onto the display.
 public class WaterFlowPanel extends JPanel implements Runnable {
-	WaterDraw land;
+	WaterDraw lan;
+	BufferedImage land;
 	
 	WaterFlowPanel(WaterDraw water) {
-		land=water;
+		lan=water;
+	}
+	public void Update(BufferedImage img){
+		land = img;
 	}
 		
 	// responsible for painting the terrain and water
@@ -19,9 +25,9 @@ public class WaterFlowPanel extends JPanel implements Runnable {
 		super.paintComponent(g);
 		
 		// draw the water images.
-		if (land.getImage() != null){
-			g.drawImage(land.getImage(), 0, 0, null);
-		}
+		//if (land.getImage() != null){
+			g.drawImage(land, 0, 0, null);
+		//}
 	}
 	
 	public void run() {	

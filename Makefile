@@ -16,9 +16,10 @@ $(BINDIR)/%.class:$(SRCDIR)/%.java
 
 CLASSES=WaterUnit.class\
 		WaterGrid.class\
-		WaterDraw.class\
-		WaterFlowPanel.class\
 		Terrain.class\
+		WaterFlowPanel.class\
+		WaterThread.class\
+		WaterDraw.class\
 		FlowPanel.class\
 		Flow.class\
         

@@ -8,9 +8,10 @@ import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+
 public class WaterDraw {
-	int dimx, dimy; // data dimensions
-	BufferedImage img; // greyscale image for displaying the terrain top-down
+	public int dimx, dimy; // data dimensions
+	public BufferedImage img; // greyscale image for displaying the terrain top-down
 	public WaterFlowPanel wfp;
 
 	// overall number of elements in the height grid
@@ -40,15 +41,15 @@ public class WaterDraw {
 	void deriveImage()
 	{
 		img = new BufferedImage(dimy, dimx, BufferedImage.TYPE_INT_ARGB);
-		WaterThread(dimx, dimy, 0, 0, img);
-		/*for(int x=0; x < dimx; x++){
+		
+		for(int x=0; x < dimx; x++){
 			for(int y=0; y < dimy; y++) {
 				 // find normalized height value in range
-				 Color col = new Color(123, 0, 0, 50);
+				 Color col = new Color(0, 0, 0, 0);
 				 img.setRGB(x, y, col.getRGB());
 			}
-		}*/
-
+		}
+		//fjPool.invoke(new WaterThread(dimx, dimy, 0, 0, img, wfp));
 		//Start Thread here.
 	}
 	public void paintPixels(int x, int y){
