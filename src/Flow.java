@@ -104,7 +104,10 @@ public class Flow {
 		
 		lp.add(fp, Integer.valueOf(1)); //layer 1
 		lp.add(g, Integer.valueOf(2)); //layer 2
-	
+		
+		SwingWaterThread a = new SwingWaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp);
+		a.execute();
+
 		wfp.addMouseListener(new MouseAdapter() {
    	    	@Override
    			 public void mouseClicked(MouseEvent e) {
@@ -113,6 +116,7 @@ public class Flow {
     			System.out.println(x+","+y);//these co-ords are relative to the component
 				water.paintPixels(x,y);
 				//wfp.repaint();
+				
    			 }
 			
 			/*public void mouseExited(MouseEvent e)
@@ -136,7 +140,8 @@ public class Flow {
 		Thread wfpt = new Thread(wfp);
         wfpt.start();
 		
-		SwingUtilities.invokeLater(()->fjPool.invoke(new WaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp)));
+		//SwingUtilities.invokeLater(()->fjPool.invoke(new WaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp)));
+		
 	}
 	
 		

@@ -12,7 +12,7 @@ import java.awt.event.*;
 /**The Fork-Join thread class that will operate on the matrix Terrain data.
 	* @author Ardo Dlamini	
 	*/
-public class WaterThread extends SwingWorker<BufferedImage, Object>  {
+public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  private static BufferedImage img;//WaterDraw img.
 	  private static BufferedImage out;
 	  private int ThreadID = 1;
