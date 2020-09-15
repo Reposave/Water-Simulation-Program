@@ -17,6 +17,7 @@ CLASSES=WaterUnit.class\
 		WaterGrid.class\
 		Terrain.class\
 		WaterFlowPanel.class\
+		SwingWaterThread.class\
 		WaterThread.class\
 		WaterDraw.class\
 		FlowPanel.class\

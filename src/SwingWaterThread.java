@@ -13,9 +13,9 @@ import java.awt.event.*;
 	* @author Ardo Dlamini	
 	*/
 public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
-	  private static BufferedImage img;//WaterDraw img.
+	  public static BufferedImage img;//WaterDraw img.
 	  private static BufferedImage out;
-	  private int ThreadID = 1;
+	  static BufferedImage[] Buff = new BufferedImage[4];
 
 	  public static AtomicBoolean isPaused = new AtomicBoolean(false);
 	  boolean updateFrame = true;
@@ -32,15 +32,12 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  int StartRow; //The beginning of this grid section.
 	  int StartColumn;
 
-	  public WaterThread TL;
-	  public WaterThread TR;
-	  public WaterThread BL;
-	  public WaterThread BR;
+	  public Thread TL;
+	  public Thread TR;
+	  public Thread BL;
+	  public Thread BR;
 	  
-	  public WaterThread(int r, int c,int SR, int SC, int ID) { 
-	    rows=r; columns=c; StartRow = SR; StartColumn = SC; ThreadID = ID;
-	  }
-	  public WaterThread(int r, int c,int SR, int SC, BufferedImage image, WaterFlowPanel Wfp) { 
+	  public SwingWaterThread(int r, int c,int SR, int SC, BufferedImage image, WaterFlowPanel Wfp) { 
 	    rows=r; columns=c; StartRow = SR; StartColumn = SC; 
 		img = image; 
 		Height = Terrain.height;
@@ -49,25 +46,11 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  }
 	  @Override
 	  protected BufferedImage doInBackground() throws Exception{
-			if(ThreadID == 1){
 				StartWork(); //Only ThreadID 1 can do this task.
-			}
-			else if(isWorking.get()){ //If we're in the working stage.
-				//Do Mathematical water movements.
-			}else{
-				//Update Buffered Image.
-				 BufferedImage Section = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				
-				 for(int i = StartRow; i<(StartRow+rows); i++){
-					for(int j = StartColumn; j<(StartColumn+columns); j++){
-						if(WaterUnitArr[i][j].Active){ //If the point has not been checked, check it.
-							Section.setRGB(i, j, WaterUnitArr[i][j].col.getRGB());
-						}
-				}
-			}
-				return Section;
-		  }
-		  return new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				return null;
+	  }
+	  public static boolean isWorkingMethod(){
+			return isWorking.get();
 	  }
 
 	  public void StartWork() throws Exception{
@@ -77,16 +60,9 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 			ActionListener taskPerformer = new ActionListener() {
 
 			public void actionPerformed(ActionEvent evt){
-						    //...Perform a task...
-							try {
+						    //...Perform a task..
                    				 updateFrame = true;
-								 UpdateImage();
 								 wfp.repaint();
-               					 }
-               			    catch(Exception ex)
-                			{
-                     			System.out.println("Image is null");
-               				 }
 							//wfp.Update(out);
 							//wfp.repaint();
 
@@ -94,59 +70,58 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 						}
 			};
 
-			Timer timer = new Timer(1000 ,taskPerformer); //25fps 40 milli
+			Timer timer = new Timer(40 ,taskPerformer); //25fps 40 milli
 			timer.setRepeats(true);
 			timer.start();
 
-			 int SplitRow = Math.round(rows/2);
-			 int SplitColumn = Math.round(columns/2);
+			int SplitRow = Math.round(rows/2);
+			int SplitColumn = Math.round(columns/2);
 
-			 TL = new WaterThread(SplitRow,SplitColumn,StartRow,StartColumn,2);
-	  		 TR = new WaterThread(SplitRow,columns-SplitColumn,StartRow,SplitColumn+StartColumn,3);
-	  		 BL = new WaterThread(rows-SplitRow,SplitColumn,SplitRow+StartRow,StartColumn,4);
-	  		 BR = new WaterThread(rows-SplitRow,columns-SplitColumn,SplitRow+StartRow,SplitColumn+StartColumn,5);
+			WaterThread TLW = new WaterThread(SplitRow,SplitColumn,StartRow,StartColumn,0,Buff);
+			WaterThread TRW = new WaterThread(SplitRow,columns-SplitColumn,StartRow,SplitColumn+StartColumn,1,Buff);
+			WaterThread BLW = new WaterThread(rows-SplitRow,SplitColumn,SplitRow+StartRow,StartColumn,2,Buff);
+			WaterThread BRW = new WaterThread(rows-SplitRow,columns-SplitColumn,SplitRow+StartRow,SplitColumn+StartColumn,3,Buff);
 
-			//while(true){
-				
-			//}
+			//TL = new Thread(TLW);
+	  		//TR = new Thread(TRW);
+	  		//BL = new Thread(BLW);
+	  		//BR = new Thread(BRW);
+
+			while(true){
+				TL = new Thread(TLW);
+	  		 	TR = new Thread(TRW);
+	  		 	BL = new Thread(BLW);
+	  		 	BR = new Thread(BRW);
+
+				UpdateImage();
+			}
 		}
 
 	public void UpdateImage() throws Exception {
+
 		if(updateFrame){
+				
+				isWorking.set(false);
 				 synchronized (WaterGrid.class){ //If working on the array, do not let anyone else access it.
-					 TL.execute();
-					 TR.execute();
-					 BL.execute();
-					 BR.execute();
-					 //BufferedImage imgBR = BR.doInBackground();
-					
-					 BufferedImage imgTL = TL.get();
-				  	 BufferedImage imgTR = TR.get();
-					 BufferedImage imgBL = BL.get();
-					 BufferedImage imgBR = BR.get();
+					 TL.start();
+					 TR.start();
+					 BL.start();
+					 BR.run();
+					 
+					 //BufferedImage imgTL = TL.join();
+				  	 //BufferedImage imgTR = TR.join();
+					 //BufferedImage imgBL = BL.join();
 
-					 int width = img.getWidth();
-					 int height = img.getHeight();
+					 TL.join();
+				  	 TR.join();
+					 BL.join();
 
-					 //BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-					// paint all 4 images, preserving the alpha channels
-					//Graphics g = combined.getGraphics();
-					//g.drawImage(imgTL, 0, 0, null);
-					//g.drawImage(imgTR, 0, 0, null);
-					//g.drawImage(imgBR, 0, 0, null);
-					//g.drawImage(imgBL, 0, 0, null);
-
-					//g.dispose();
-		
-					//out = combined;
-					wfp.PaintResult(imgTL,imgTR,imgBL,imgBR);
+					wfp.PaintResult(Buff[0],Buff[1],Buff[2],Buff[3]);
 
 					updateFrame = false;
 					}
+				isWorking.set(true);
 				}
-
-				isWorking.set(!isWorking.get());
 				//Allows the MouseClick to add water and reduce latency.
 
 				if(isPaused.get()){ //If we are paused, never move the water.
@@ -164,9 +139,5 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 					}*/
 				}
 	}
-
-	 private void CheckNeighbours(int r, int c){
-
-	 }
 	
 }

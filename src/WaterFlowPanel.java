@@ -13,7 +13,7 @@ public class WaterFlowPanel extends JPanel implements Runnable {
 	
 	WaterFlowPanel(WaterDraw water) {
 		lan=water;
-		setDoubleBuffered(true);
+		//setDoubleBuffered(true);
 	}
 	//public void Update(BufferedImage img){
 	//	land = img;
