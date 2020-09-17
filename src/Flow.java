@@ -68,7 +68,19 @@ public class Flow {
 				frame.dispose();
 			}
 		});
-		
+		pauseB.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				// to do ask threads to stop
+				SwingWaterThread.PauseWork();
+			}
+		});
+		playB.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				// to do ask threads to stop
+				SwingWaterThread.ResumeWork();
+			}
+		});
+
 		b.add(endB);
 		b.add(Box.createRigidArea(new Dimension(10, 0))); //THis may help in hiding the Area of terrain that pops out.
 		b.add(resetB);

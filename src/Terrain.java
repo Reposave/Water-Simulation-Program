@@ -11,11 +11,11 @@ import java.io.PrintWriter;
 public class Terrain {
 
 	public static float [][] height; // regular grid of height values
-	int dimx, dimy; // data dimensions
-	BufferedImage img; // greyscale image for displaying the terrain top-down
+	static int dimx, dimy; // data dimensions
+	static BufferedImage img; // greyscale image for displaying the terrain top-down
 	WaterGrid watergrid;
 
-	ArrayList<Integer> permute;	// permuted list of integers in range [0, dimx*dimy)
+	static ArrayList<Integer> permute;	// permuted list of integers in range [0, dimx*dimy)
 	
 	// overall number of elements in the height grid
 	int dim(){
@@ -38,7 +38,7 @@ public class Terrain {
 	}
 	
 	// convert linear position into 2D location in grid
-	void locate(int pos, int [] ind)
+	static void locate(int pos, int [] ind)
 	{
 		ind[0] = (int) pos / dimy; // x
 		ind[1] = pos % dimy; // y	
@@ -80,8 +80,8 @@ public class Terrain {
 	
 	// find permuted 2D location from a linear index in the
 	// range [0, dimx*dimy)
-	void getPermute(int i, int [] loc) {
-		locate(permute.get(i), loc);
+	static void getPermute(int i, int [] loc) {
+		locate(permute.get(i), loc); 
 	}
 	
 	// read in terrain from file

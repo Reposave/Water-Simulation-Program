@@ -17,7 +17,7 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  private static BufferedImage out;
 	  static BufferedImage[] Buff = new BufferedImage[4];
 
-	  public static AtomicBoolean isPaused = new AtomicBoolean(false);
+	  public static AtomicBoolean isPaused = new AtomicBoolean(true);
 	  boolean updateFrame = true;
 	  public static AtomicBoolean isWorking = new AtomicBoolean(false);
 
@@ -51,6 +51,12 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  }
 	  public static boolean isWorkingMethod(){
 			return isWorking.get();
+	  }
+	  public static void PauseWork(){
+			isPaused.set(true);
+	  }
+	  public static void ResumeWork(){
+			isPaused.set(false);
 	  }
 
 	  public void StartWork() throws Exception{
@@ -88,19 +94,13 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  		//BR = new Thread(BRW);
 
 			while(true){
+
 				TL = new Thread(TLW);
 	  		 	TR = new Thread(TRW);
 	  		 	BL = new Thread(BLW);
 	  		 	BR = new Thread(BRW);
-
-				UpdateImage();
-			}
-		}
-
-	public void UpdateImage() throws Exception {
-
-		if(updateFrame){
 				
+				if(updateFrame){	
 				isWorking.set(false);
 				 synchronized (WaterGrid.class){ //If working on the array, do not let anyone else access it.
 					 TL.start();
@@ -108,10 +108,6 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 					 BL.start();
 					 BR.run();
 					 
-					 //BufferedImage imgTL = TL.join();
-				  	 //BufferedImage imgTR = TR.join();
-					 //BufferedImage imgBL = BL.join();
-
 					 TL.join();
 				  	 TR.join();
 					 BL.join();
@@ -124,20 +120,25 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 				}
 				//Allows the MouseClick to add water and reduce latency.
 
+				TL = new Thread(TLW);
+	  		 	TR = new Thread(TRW);
+	  		 	BL = new Thread(BLW);
+	  		 	BR = new Thread(BRW);
+
 				if(isPaused.get()){ //If we are paused, never move the water.
 					isWorking.set(false);		
 				}else{
-					/*synchronized (WaterGrid.class){ //If working on the array, do not let anyone else access it.
-						 TL.execute();
-						 TR.execute();
-						 BL.execute();
-						 BR.doInBackground();
-
-						 TL.get();
-					  	 TR.get();
-						 BL.get();
-					}*/
+					 TL.start();
+					 TR.start();
+					 BL.start();
+					 BR.run();
+					
+					 TL.join();
+				  	 TR.join();
+					 BL.join();
 				}
-	}
+				//UpdateImage();
+			}
+		}
 	
 }
