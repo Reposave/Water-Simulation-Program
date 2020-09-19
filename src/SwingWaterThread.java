@@ -14,17 +14,20 @@ import java.awt.event.*;
 	*/
 public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  public static BufferedImage img;//WaterDraw img.
-	  private static BufferedImage out;
 	  static BufferedImage[] Buff = new BufferedImage[4];
 
 	  public static AtomicBoolean isPaused = new AtomicBoolean(true);
-	  boolean updateFrame = true;
+	  boolean updateFrame = true; //do not change.
 	  public static AtomicBoolean isWorking = new AtomicBoolean(false);
+	  public static AtomicBoolean isReset = new AtomicBoolean(false);
+	  private static boolean StopThread = false;
 
 	  private static WaterUnit[][] WaterUnitArr;
 	  private static float[][] Height;
 
 	  static WaterFlowPanel wfp;
+
+	  static int TimeStep = 0; 
 	
       int rows; // arguments
 	  int columns;
@@ -58,10 +61,19 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  public static void ResumeWork(){
 			isPaused.set(false);
 	  }
+	  public static void Reset(){
+			isReset.set(true);
+			TimeStep = 0;
+			Flow.timer.setText(""+TimeStep);
+	  }
+	  public static void Stop(){
+			StopThread=true;
+	  }
+	  public void UpdateTimeStep(){
+			Flow.timer.setText(""+TimeStep);
+	  }
 
 	  public void StartWork() throws Exception{
-
-			out = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
 			ActionListener taskPerformer = new ActionListener() {
 
@@ -69,10 +81,6 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 						    //...Perform a task..
                    				 updateFrame = true;
 								 wfp.repaint();
-							//wfp.Update(out);
-							//wfp.repaint();
-
-			//System.out.println("Reading SMTP Info.");
 						}
 			};
 
@@ -87,22 +95,22 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 			WaterThread TRW = new WaterThread(SplitRow,columns-SplitColumn,StartRow,SplitColumn+StartColumn,1,Buff);
 			WaterThread BLW = new WaterThread(rows-SplitRow,SplitColumn,SplitRow+StartRow,StartColumn,2,Buff);
 			WaterThread BRW = new WaterThread(rows-SplitRow,columns-SplitColumn,SplitRow+StartRow,SplitColumn+StartColumn,3,Buff);
-
+			
+			BR = new Thread(BRW);
 			//TL = new Thread(TLW);
 	  		//TR = new Thread(TRW);
 	  		//BL = new Thread(BLW);
 	  		//BR = new Thread(BRW);
 
-			while(true){
+			while(!StopThread){
 
-				TL = new Thread(TLW);
-	  		 	TR = new Thread(TRW);
-	  		 	BL = new Thread(BLW);
-	  		 	BR = new Thread(BRW);
-				
 				if(updateFrame){	
 				isWorking.set(false);
 				 synchronized (WaterGrid.class){ //If working on the array, do not let anyone else access it.
+					 TL = new Thread(TLW);
+	  		 		 TR = new Thread(TRW);
+	  		 		 BL = new Thread(BLW);
+
 					 TL.start();
 					 TR.start();
 					 BL.start();
@@ -119,15 +127,38 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 				isWorking.set(true);
 				}
 				//Allows the MouseClick to add water and reduce latency.
+				if(isReset.get()){
+					isWorking.set(false);
+					 synchronized (WaterGrid.class){
+					//The update frame stage sometimes may not finish resetting so new threads need to be created to finish the job.
+					TL = new Thread(TLW);
+		  		 	TR = new Thread(TRW);
+		  		 	BL = new Thread(BLW);
+		  		 	//BR = new Thread(BRW);
 
-				TL = new Thread(TLW);
-	  		 	TR = new Thread(TRW);
-	  		 	BL = new Thread(BLW);
-	  		 	BR = new Thread(BRW);
+					TL.start();
+					TR.start();
+					BL.start();
+				    BR.run();
+					 
+					TL.join();
+				  	TR.join();
+					BL.join();
+					
+					isReset.set(false);
+					isWorking.set(true);
+					}
+				}
 
 				if(isPaused.get()){ //If we are paused, never move the water.
 					isWorking.set(false);		
 				}else{
+					//Does not need synchronization because in order to work on a waterunit, you need their key first.
+					 TL = new Thread(TLW);
+	  		 		 TR = new Thread(TRW);
+	  		 		 BL = new Thread(BLW);
+	  		 		 //BR = new Thread(BRW);
+
 					 TL.start();
 					 TR.start();
 					 BL.start();
@@ -136,9 +167,14 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 					 TL.join();
 				  	 TR.join();
 					 BL.join();
+
+					 TimeStep++;
+					 UpdateTimeStep();
 				}
-				//UpdateImage();
+				
 			}
+			timer.stop();
+			cancel(true);
 		}
 	
 }

@@ -75,8 +75,6 @@ public class WaterDraw {
 			for(int i=XLBound; i < XUBound; i++){
 				for(int j=YLBound; j < YUBound; j++) {
 					 WaterGrid.WaterUnitArray[i][j].Activate();
-					 //Color col = new Color(0, 175-25, 255, 255);
-					 //img.setRGB(i, j, col.getRGB());
 				}
 			}
 

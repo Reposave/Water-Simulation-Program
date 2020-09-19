@@ -18,10 +18,13 @@ public class Flow {
 	static int frameY;
 	static FlowPanel fp;
 	static WaterFlowPanel wfp;
+	static SwingWaterThread a;
 
 	static WaterDraw water;
 	
 	static final ForkJoinPool fjPool = new ForkJoinPool();
+
+	public static JLabel timer;
 
 	// start timer
 	private static void tick(){
@@ -60,11 +63,14 @@ public class Flow {
 		JButton resetB = new JButton("Reset");
 		JButton pauseB = new JButton("Pause");
 		JButton playB = new JButton("Play");
-
+		timer = new JLabel("0");
+		timer.setPreferredSize(new Dimension(100, 0));
+		
 		// add the listener to the jbutton to handle the "pressed" event
 		endB.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				// to do ask threads to stop
+				a.Stop();
 				frame.dispose();
 			}
 		});
@@ -80,6 +86,12 @@ public class Flow {
 				SwingWaterThread.ResumeWork();
 			}
 		});
+		resetB.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				SwingWaterThread.PauseWork(); //Stop Working on the array first.
+				SwingWaterThread.Reset();
+			}
+		});
 
 		b.add(endB);
 		b.add(Box.createRigidArea(new Dimension(10, 0))); //THis may help in hiding the Area of terrain that pops out.
@@ -89,7 +101,8 @@ public class Flow {
 		b.add(Box.createRigidArea(new Dimension(10, 0)));
 		b.add(playB);
 		b.add(Box.createRigidArea(new Dimension(10, 0)));
-
+		b.add(timer);
+		b.add(Box.createRigidArea(new Dimension(10, 0)));
 		//g.add(b);
 		
 		wfp = new WaterFlowPanel(water);
@@ -117,7 +130,7 @@ public class Flow {
 		lp.add(fp, Integer.valueOf(1)); //layer 1
 		lp.add(g, Integer.valueOf(2)); //layer 2
 		
-		SwingWaterThread a = new SwingWaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp);
+		a = new SwingWaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp);
 		a.execute();
 
 		wfp.addMouseListener(new MouseAdapter() {
