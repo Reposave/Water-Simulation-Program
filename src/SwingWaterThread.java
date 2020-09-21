@@ -9,7 +9,7 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import java.awt.event.*;
 
-/**The Fork-Join thread class that will operate on the matrix Terrain data.
+/**The SwingWorker thread class that will control the 4 threads that operate and the display frame.
 	* @author Ardo Dlamini	
 	*/
 public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
@@ -29,7 +29,7 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 
 	  static int TimeStep = 0; 
 	
-      int rows; // arguments
+      int rows;
 	  int columns;
 
 	  int StartRow; //The beginning of this grid section.
@@ -40,6 +40,14 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 	  public Thread BL;
 	  public Thread BR;
 	  
+	  /**The SwingWaterThread constructor takes in the coordinates of the array. 
+	 * @param r The number of rows the section covers.
+	 * @param c	The number of columns the section covers.
+	 * @param SR The starting row coordinate of the section.
+	 * @param SC The starting column coordinate of the section.
+	 * @param image The image from the WaterDraw class.
+	 * @param wfp The WaterFlowPanel
+	*/
 	  public SwingWaterThread(int r, int c,int SR, int SC, BufferedImage image, WaterFlowPanel Wfp) { 
 	    rows=r; columns=c; StartRow = SR; StartColumn = SC; 
 		img = image; 
@@ -47,12 +55,13 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 		WaterUnitArr = WaterGrid.GetArray();
 		wfp = Wfp;
 	  }
+	
 	  @Override
 	  protected BufferedImage doInBackground() throws Exception{
 				StartWork(); //Only ThreadID 1 can do this task.
 				return null;
 	  }
-	  public static boolean isWorkingMethod(){
+	  public static boolean isWorkingMethod(){ //WaterThreads use this to determine whether it is time to display the WaterUnits or calculate the movement.
 			return isWorking.get();
 	  }
 	  public static void PauseWork(){
@@ -73,18 +82,21 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 			Flow.timer.setText(""+TimeStep);
 	  }
 
+	  /**The StartWork method will manage how the threads operate. From Pausing, resetting and resuming the work the threads have to do.
+	 * @exception Exception when acquiring/releasing a Sempahore lock fails
+	*/
 	  public void StartWork() throws Exception{
 
 			ActionListener taskPerformer = new ActionListener() {
 
 			public void actionPerformed(ActionEvent evt){
-						    //...Perform a task..
+						    //This ActionListener waits for the SwingTimer to trigger it.
                    				 updateFrame = true;
 								 wfp.repaint();
 						}
 			};
 
-			Timer timer = new Timer(40 ,taskPerformer); //25fps 40 milli
+			Timer timer = new Timer(40 ,taskPerformer); //25fps 40 milliseconds
 			timer.setRepeats(true);
 			timer.start();
 
@@ -97,10 +109,6 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 			WaterThread BRW = new WaterThread(rows-SplitRow,columns-SplitColumn,SplitRow+StartRow,SplitColumn+StartColumn,3,Buff);
 			
 			BR = new Thread(BRW);
-			//TL = new Thread(TLW);
-	  		//TR = new Thread(TRW);
-	  		//BL = new Thread(BLW);
-	  		//BR = new Thread(BRW);
 
 			while(!StopThread){
 
@@ -126,7 +134,7 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 					}
 				isWorking.set(true);
 				}
-				//Allows the MouseClick to add water and reduce latency.
+				
 				if(isReset.get()){
 					isWorking.set(false);
 					 synchronized (WaterGrid.class){
@@ -134,7 +142,7 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 					TL = new Thread(TLW);
 		  		 	TR = new Thread(TRW);
 		  		 	BL = new Thread(BLW);
-		  		 	//BR = new Thread(BRW);
+		  		 	
 
 					TL.start();
 					TR.start();
@@ -153,11 +161,12 @@ public class SwingWaterThread extends SwingWorker<BufferedImage, Object>  {
 				if(isPaused.get()){ //If we are paused, never move the water.
 					isWorking.set(false);		
 				}else{
-					//Does not need synchronization because in order to work on a waterunit, you need their key first.
+					//Does not need synchronization because in order to work on a waterunit, you need their lock first.			
+					 isWorking.set(true);
 					 TL = new Thread(TLW);
 	  		 		 TR = new Thread(TRW);
 	  		 		 BL = new Thread(BLW);
-	  		 		 //BR = new Thread(BRW);
+	  		 		 
 
 					 TL.start();
 					 TR.start();

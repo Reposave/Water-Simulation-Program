@@ -10,17 +10,14 @@ import javax.swing.Timer;
 import java.awt.event.*;
 import java.util.concurrent.TimeUnit;
 
-/**The Fork-Join thread class that will operate on the matrix Terrain data.
-	* @author Ardo Dlamini	
+/**The thread class that will operate on the matrix Terrain and the WaterUnit array data.
+	* @author Ardo Dlamini
+	* @version 1.0 
 	*/
 public class WaterThread implements Runnable  {
 	  private static BufferedImage img;//WaterDraw img.
-	  //private static BufferedImage out;
 	  private int ThreadID = 1;
 	  BufferedImage[] Buff;
-	  //public static AtomicBoolean isPaused = new AtomicBoolean(false);
-	  //boolean updateFrame = true;
-	  //public static AtomicBoolean isWorking = new AtomicBoolean(false);
 
 	  private static WaterUnit[][] WaterUnitArr;
 	  private static float[][] Height;
@@ -28,25 +25,29 @@ public class WaterThread implements Runnable  {
 
 	  static WaterFlowPanel wfp;
 	
-      int rows; // arguments
+      int rows;
 	  int columns;
 
 	  int StartRow; //The beginning of this grid section.
 	  int StartColumn;
-	  
+
+	  /**The WaterThread constructor takes in a section of the coordinates of the array depending on how the work was split. It is also assigned an ID which will be used in the BufferedImage array to determine index positions to place the renders. 
+	 * @param r The number of rows the section covers.
+	 * @param c	The number of columns the section covers.
+	 * @param SR The starting row coordinate of the section.
+	 * @param SC The starting column coordinate of the section.
+	 * @param ID The threads number used to place renders in an output BufferedImage array.
+	 * @param buff The BufferedImage array.
+	*/
 	  public WaterThread(int r, int c,int SR, int SC, int ID ,BufferedImage[] buff) { 
 	    rows=r; columns=c; StartRow = SR; StartColumn = SC; ThreadID = ID; Buff = buff;
 		Height = Terrain.height;
 		WaterUnitArr = WaterGrid.GetArray();
 		img = SwingWaterThread.img; 
 	  }
-	  public WaterThread(int r, int c,int SR, int SC, BufferedImage image, WaterFlowPanel Wfp) { 
-	    rows=r; columns=c; StartRow = SR; StartColumn = SC; 
-		img = image; 
-		Height = Terrain.height;
-		WaterUnitArr = WaterGrid.GetArray();
-		wfp = Wfp;
-	  }
+	  
+	  /**The run method in each thread will begin by first checking what working stage we are in. If true, try and find Active WaterUnits. Active WaterUnits will be reset at boundaries but will be moved if not on the boundary. If working stage is false, we either draw the Water Units and place the Images in a BufferedImage array or reset them.
+	  */
 	  public void run(){
 			if(SwingWaterThread.isWorkingMethod()){ //If we're in the working stage.
 				//Do Mathematical water movements.
@@ -87,8 +88,10 @@ public class WaterThread implements Runnable  {
 			}else{
 				//Update Buffered Image.
 				 BufferedImage Section = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
 				 for(int i = StartRow; i<(StartRow+rows); i++){
 					for(int j = StartColumn; j<(StartColumn+columns); j++){
+
 						if(WaterUnitArr[i][j].DrawUnit){ //If the point has not been checked, check it.
 							if(!SwingWaterThread.isReset.get()){
 								Section.setRGB(i, j, WaterUnitArr[i][j].col.getRGB());
@@ -104,6 +107,11 @@ public class WaterThread implements Runnable  {
 			Buff[ThreadID] = Section;
 		  }
 	  }
+	 /**This method compares the combined height and depth of the current coordinate, the thread is checking, against the neighbouring 8 coordinates. When the lowest coordinate is found, water is transferred to it. WaterUnit objects have Semaphore locks that must be obtained first before checking the Water Surface.
+	 * @param r Current row coordinate
+	 * @param c Current column coordinate
+	 * @exception Exception when acquiring/releasing of the lock fails
+	*/
 	 private void CheckNeighbours(int r, int c)throws Exception{
 		
 		float i = 0f;
@@ -112,13 +120,13 @@ public class WaterThread implements Runnable  {
 		i = ThisHeight;
 		WaterUnit lowest=null;
 		
-		if(WaterUnitArr[r-1][c-1].lk.tryAcquire()){
+		if(WaterUnitArr[r-1][c-1].lk.tryAcquire()){ //First attempt to grab the Semaphore.
 			other=Height[r-1][c-1] + (0.01f * WaterUnitArr[r-1][c-1].Depth());
 			if(other < i){
 				i=other;
 				lowest = WaterUnitArr[r-1][c-1];
 			}else{
-				WaterUnitArr[r-1][c-1].lk.release();
+				WaterUnitArr[r-1][c-1].lk.release(); //Release the Semaphore if condition not met.
 			}
 		}
 
@@ -194,7 +202,7 @@ public class WaterThread implements Runnable  {
 
 		if(i != ThisHeight){
 			WaterUnitArr[r][c].Transfer(lowest);
-			//THe one who runs this method will always have the key.
+			//The one who runs this method will always have it's own lock and the other's Semaphore.
 		}
 	 }
 }

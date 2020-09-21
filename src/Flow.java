@@ -12,6 +12,10 @@ import java.awt.Color;
 
 import java.util.concurrent.ForkJoinPool;
 
+/**This class creates the GUI
+ * @author Ardo Dlamini
+ * @version 1.0
+*/
 public class Flow {
 	static long startTime = 0;
 	static int frameX;
@@ -46,15 +50,12 @@ public class Flow {
       	JPanel g = new JPanel();
         g.setLayout(new BoxLayout(g, BoxLayout.PAGE_AXIS)); 
 
-   		JLayeredPane lp = frame.getLayeredPane();
+   		JLayeredPane lp = frame.getLayeredPane(); //Necessary to overlay the Water Flow Panel above the terrain.
 		lp.setPreferredSize(new Dimension(frameX,frameY));
 
 		fp = new FlowPanel(landdata);
 		fp.setPreferredSize(new Dimension(frameX,frameY));
 		
-		//g.add(fp);
-
-		// to do: add a MouseListener, buttons and ActionListeners on those buttons
 	   	
 		JPanel b = new JPanel();
 	    b.setLayout(new BoxLayout(b, BoxLayout.LINE_AXIS));
@@ -63,26 +64,23 @@ public class Flow {
 		JButton resetB = new JButton("Reset");
 		JButton pauseB = new JButton("Pause");
 		JButton playB = new JButton("Play");
+
 		timer = new JLabel("0");
 		timer.setPreferredSize(new Dimension(100, 0));
 		
-		// add the listener to the jbutton to handle the "pressed" event
 		endB.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				// to do ask threads to stop
 				a.Stop();
 				frame.dispose();
 			}
 		});
 		pauseB.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				// to do ask threads to stop
 				SwingWaterThread.PauseWork();
 			}
 		});
 		playB.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				// to do ask threads to stop
 				SwingWaterThread.ResumeWork();
 			}
 		});
@@ -94,7 +92,7 @@ public class Flow {
 		});
 
 		b.add(endB);
-		b.add(Box.createRigidArea(new Dimension(10, 0))); //THis may help in hiding the Area of terrain that pops out.
+		b.add(Box.createRigidArea(new Dimension(10, 0))); //This creates spaces between the buttons and the timer.
 		b.add(resetB);
 		b.add(Box.createRigidArea(new Dimension(10, 0)));
 		b.add(pauseB);
@@ -103,16 +101,15 @@ public class Flow {
 		b.add(Box.createRigidArea(new Dimension(10, 0)));
 		b.add(timer);
 		b.add(Box.createRigidArea(new Dimension(10, 0)));
-		//g.add(b);
+
 		
 		wfp = new WaterFlowPanel(water);
 		water.insertWFP(wfp);
-		//wfp.setPreferredSize(new Dimension(frameX,frameY));
+
 		wfp.setPreferredSize(fp.getSize());
 
-		//Setting the background colour doesn't matter but make sure it is not opaque as the background will appear above the buffered image of wfp thus blocking it.
 		wfp.setBackground(new Color(250, 134, 145, 255));
-		wfp.setOpaque(false);
+		wfp.setOpaque(false); //This seems to have no effect on bufferedImages.
 
 		g.add(wfp);
 		g.setOpaque(false);
@@ -120,43 +117,30 @@ public class Flow {
 		g.add(b);
 	
 		g.setBounds(0, 0, frameX, frameY);
-		//wfp.setBounds(0, 0, frameX, frameY);
+
 		fp.setBounds(0, 0, frameX, frameY);
 		
-		//The greater the integer, the higher the layer.
-		//lp.add(wfp, Integer.valueOf(2)); //layer 1
-		//lp.add(g, Integer.valueOf(1)); //layer 2
 		
 		lp.add(fp, Integer.valueOf(1)); //layer 1
 		lp.add(g, Integer.valueOf(2)); //layer 2
 		
 		a = new SwingWaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp);
 		a.execute();
-
+		
+        //This will capture mouse input on the WaterFLowPanel.
 		wfp.addMouseListener(new MouseAdapter() {
    	    	@Override
    			 public void mouseClicked(MouseEvent e) {
 				int x=e.getX();
     			int y=e.getY();
-    			System.out.println(x+","+y);//these co-ords are relative to the component
+    			//System.out.println(x+","+y);//these co-ords are relative to the component
 				water.paintPixels(x,y);
-				//wfp.repaint();
 				
    			 }
-			
-			/*public void mouseExited(MouseEvent e)
-			public void mouseEntered(MouseEvent e)
-			*/
 		});
     	
 		frame.setSize(frameX, frameY+50);	// a little extra space at the bottom for buttons
       	frame.setLocationRelativeTo(null);  // center window on screen
-      	//frame.add(g); //add contents to window
-		//frame.add(wfp);
-		//frame.add(lp);
-        //frame.setContentPane(g);
-		//frame.setContentPane(lp);
-
         frame.setVisible(true);
 
         Thread fpt = new Thread(fp);
@@ -164,8 +148,6 @@ public class Flow {
 		
 		Thread wfpt = new Thread(wfp);
         wfpt.start();
-		
-		//SwingUtilities.invokeLater(()->fjPool.invoke(new WaterThread(water.dimx, water.dimy, 0, 0, water.img, wfp)));
 		
 	}
 	
@@ -186,7 +168,7 @@ public class Flow {
 		// 
 		landdata.readData(args[0]);
 
-		water.readData(args[0]);
+		water.readData(landdata.getDimX(), landdata.getDimY());
 		
 		frameX = landdata.getDimX();
 		frameY = landdata.getDimY();

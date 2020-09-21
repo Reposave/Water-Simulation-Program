@@ -8,10 +8,13 @@ import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-
+/**Activates WaterUnits by mouse click
+ * @author Ardo Dlamini
+ * @version 1.0
+*/
 public class WaterDraw {
-	public int dimx, dimy; // data dimensions
-	public BufferedImage img; // greyscale image for displaying the terrain top-down
+	public int dimx, dimy;
+	public BufferedImage img;
 	public WaterFlowPanel wfp;
 
 	// overall number of elements in the height grid
@@ -37,23 +40,18 @@ public class WaterDraw {
 		  return img;
 	}
 	
-	// convert height values to greyscale colour and populate an image
+	/**Creates the bufferedImage for the Water layer.
+	*/
 	void deriveImage()
 	{
 		img = new BufferedImage(dimy, dimx, BufferedImage.TYPE_INT_ARGB);
 		
-		/*for(int x=0; x < dimx; x++){
-			for(int y=0; y < dimy; y++) {
-				 // find normalized height value in range
-				 Color col = new Color(0, 0, 0, 0);
-				 img.setRGB(x, y, col.getRGB());
-			}
-		}*/
-		//fjPool.invoke(new WaterThread(dimx, dimy, 0, 0, img, wfp));
-		//Start Thread here.
 	}
+	/**Takes in an x and y position of the mouse click and draws a 10x10 square. Must first obtain the lock to the WaterGrid class before any WaterUnits are Activated.
+	 * @param x coordinate of the mouse click.
+	 * @param y coordinate of the mouse click.
+	*/
 	public void paintPixels(int x, int y){
-		//print a 10*10 square.
 		int XUBound =x+5;
 		int YUBound =y+5;
 		int XLBound = x-5;
@@ -80,36 +78,15 @@ public class WaterDraw {
 
 		}
 	}	
-	
-	// read in terrain from file
-	void readData(String fileName){ 
-		try{ 
+	/**Takes in an x and y dimension of the Terrain array.
+	 * @param x X-Dimension
+	 * @param y Y-Dimension
+	*/
+	void readData(int x, int y){ 
 
-			Scanner sc = null;
-			File f = new File("../SampleData/"+fileName);
-			if(f.isFile()){
-				sc=new Scanner(f);
-			}else{
-				sc=new Scanner(new File("../NewTerrain/"+fileName));					
-			}
-
-			// read grid dimensions
-			// x and y correpond to columns and rows, respectively.
-			// Using image coordinate system where top left is (0, 0).
-			dimy = sc.nextInt(); 
-			dimx = sc.nextInt();
-			sc.close(); 
+			dimy = y; 
+			dimx = x;
 			
-			// generate greyscale heightfield image
 			deriveImage();
 		} 
-		catch (IOException e){ 
-			System.out.println("Unable to open input file "+fileName);
-			e.printStackTrace();
-		}
-		catch (java.util.InputMismatchException e){ 
-			System.out.println("Malformed input file "+fileName);
-			e.printStackTrace();
-		}
-	}
 }
